@@ -1,392 +1,339 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Prompt AI — Admin</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-:root{--bg:#060a12;--surface:#0c1220;--card:#101825;--border:#1a2840;--accent:#3b82f6;--accent2:#a78bfa;--text:#dce8f8;--muted:#4e6a90;--success:#34d399;--danger:#f87171;--warning:#fbbf24;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
-
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-.login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px 36px;width:100%;max-width:360px;box-shadow:0 40px 80px rgba(0,0,0,0.5);text-align:center;}
-.login-icon{font-size:38px;margin-bottom:14px;}
-.login-title{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;margin-bottom:6px;}
-.login-sub{color:var(--muted);font-size:13px;margin-bottom:24px;}
-.login-card input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:10px;}
-.login-card input:focus{border-color:var(--accent);}
-.login-card input::placeholder{color:var(--muted);}
-.btn-login{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s;}
-.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,0.4);}
-.login-err{color:var(--danger);font-size:12px;margin-top:8px;display:none;}
-
-.admin-wrap{display:flex;min-height:100vh;}
-.sidebar{width:216px;background:var(--card);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;display:flex;flex-direction:column;}
-.sidebar-logo{display:flex;align-items:center;gap:9px;padding:0 18px 22px;border-bottom:1px solid var(--border);margin-bottom:18px;}
-.logo-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:15px;}
-.logo-label{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.sidebar-section{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:0 18px;margin-bottom:6px;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;color:var(--muted);font-size:13px;cursor:pointer;transition:all 0.15s;border-right:2px solid transparent;}
-.nav-item:hover{color:var(--text);background:rgba(59,130,246,0.05);}
-.nav-item.active{color:var(--accent);background:rgba(59,130,246,0.09);border-right-color:var(--accent);}
-.sidebar-bottom{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border);}
-.logout-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;transition:all 0.2s;}
-.logout-btn:hover{border-color:var(--danger);color:var(--danger);}
-
-.main{flex:1;padding:28px;overflow-y:auto;}
-.page-header{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.5px;}
-.page-sub{color:var(--muted);font-size:13px;margin-top:4px;}
-.refresh-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;transition:all 0.2s;}
-.refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
-
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;}
-.stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;line-height:1;margin-bottom:5px;}
-.stat-sub{font-size:11px;color:var(--muted);}
-.stat-card.blue .stat-value{color:var(--accent);}
-.stat-card.purple .stat-value{color:var(--accent2);}
-.stat-card.green .stat-value{color:var(--success);}
-.stat-card.yellow .stat-value{color:var(--warning);}
-
-.section{background:var(--card);border:1px solid var(--border);border-radius:13px;margin-bottom:20px;overflow:hidden;}
-.section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
-.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:600;}
-.badge.blue{background:rgba(59,130,246,0.12);color:var(--accent);}
-.badge.purple{background:rgba(167,139,250,0.12);color:var(--accent2);}
-.badge.green{background:rgba(52,211,153,0.12);color:var(--success);}
-.badge.yellow{background:rgba(251,191,36,0.12);color:var(--warning);}
-
-.table-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-th{text-align:left;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:11px 20px;border-bottom:1px solid var(--border);}
-td{padding:12px 20px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(26,40,64,0.4);vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(59,130,246,0.02);}
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
-.empty-icon{font-size:32px;margin-bottom:10px;}
-
-.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(26,40,64,0.35);}
-.activity-item:last-child{border-bottom:none;}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.dot.generation{background:var(--accent);}
-.dot.waitlist{background:var(--warning);}
-.dot.signup{background:var(--success);}
-.dot.other{background:var(--muted);}
-.activity-text{font-size:13px;flex:1;line-height:1.5;}
-.activity-time{font-size:11px;color:var(--muted);flex-shrink:0;white-space:nowrap;}
-
-.view{display:none;}.view.active{display:block;}
-
-@media(max-width:768px){
-  .sidebar{width:52px;}
-  .sidebar-logo,.sidebar-section,.nav-item span,.sidebar-bottom{display:none;}
-  .nav-item{padding:10px;justify-content:center;}
-  .main{padding:16px;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-}
-</style>
-</head>
-<body>
-
-<div id="loginPage">
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-icon">🛡️</div>
-      <div class="login-title">Admin Access</div>
-      <div class="login-sub">Prompt AI — Internal Dashboard</div>
-      <input type="password" id="adminPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')adminLogin()"/>
-      <button class="btn-login" onclick="adminLogin()">Access Dashboard</button>
-      <div class="login-err" id="loginErr">Incorrect password.</div>
-    </div>
-  </div>
-</div>
-
-<div id="adminPanel" style="display:none">
-  <div class="admin-wrap">
-    <div class="sidebar">
-      <div class="sidebar-logo">
-        <div class="logo-icon">⚡</div>
-        <span class="logo-label">Admin</span>
-      </div>
-      <div class="sidebar-section">Overview</div>
-      <div class="nav-item active" id="nav-overview" onclick="showView('overview')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item" id="nav-activity" onclick="showView('activity')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span>Activity</span>
-      </div>
-      <div class="sidebar-section" style="margin-top:14px;">Users</div>
-      <div class="nav-item" id="nav-users" onclick="showView('users')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        <span>Accounts</span>
-      </div>
-      <div class="nav-item" id="nav-waitlist" onclick="showView('waitlist')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <span>Waitlist</span>
-      </div>
-      <div class="sidebar-bottom">
-        <button class="logout-btn" onclick="adminLogout()">Sign Out</button>
-      </div>
-    </div>
-
-    <div class="main">
-      <!-- DASHBOARD -->
-      <div class="view active" id="view-overview">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Dashboard</div>
-            <div class="page-sub" id="lastUpdated">Loading...</div>
-          </div>
-          <button class="refresh-btn" onclick="loadData()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-            Refresh
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt AI — Admin</title>
+    <link rel="stylesheet" href="admin-styles.css" />
+  </head>
+  <body>
+    <div id="loginPage">
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="login-icon">🛡️</div>
+          <div class="login-title">Admin Access</div>
+          <div class="login-sub">Prompt AI — Internal Dashboard</div>
+          <input
+            type="password"
+            id="adminPass"
+            placeholder="Enter admin password"
+            onkeydown="if (event.key === 'Enter') adminLogin();"
+          />
+          <button class="btn-login" onclick="adminLogin()">
+            Access Dashboard
           </button>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card blue"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">—</div><div class="stat-sub">Registered accounts</div></div>
-          <div class="stat-card yellow"><div class="stat-label">Waitlist</div><div class="stat-value" id="statWaitlist">—</div><div class="stat-sub">Awaiting launch</div></div>
-          <div class="stat-card green"><div class="stat-label">Total Prompts</div><div class="stat-value" id="statGen">—</div><div class="stat-sub">All time</div></div>
-          <div class="stat-card purple"><div class="stat-label">Today</div><div class="stat-value" id="statToday">—</div><div class="stat-sub">Generations today</div></div>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="section-title">Top Categories</span></div>
-          <div id="catTable"><div class="empty-state"><div class="empty-icon">📊</div>No data yet</div></div>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="section-title">Recent Sign-ups</span><span class="badge blue" id="recentCount">0</span></div>
-          <div id="recentSignups"><div class="empty-state"><div class="empty-icon">👤</div>No sign-ups yet</div></div>
+          <div class="login-err" id="loginErr">Incorrect password.</div>
         </div>
       </div>
+    </div>
 
-      <!-- ACTIVITY -->
-      <div class="view" id="view-activity">
-        <div class="page-header">
-          <div><div class="page-title">Activity Feed</div><div class="page-sub">Live log from Supabase</div></div>
-          <button class="refresh-btn" onclick="loadData()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Refresh</button>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="section-title">Events</span><span class="badge blue" id="eventsCount">0</span></div>
-          <div id="activityFeed"><div class="empty-state"><div class="empty-icon">📡</div>No events yet</div></div>
-        </div>
-      </div>
-
-      <!-- USERS -->
-      <div class="view" id="view-users">
-        <div class="page-header">
-          <div><div class="page-title">Registered Users</div><div class="page-sub">Everyone who has signed up</div></div>
-          <button class="refresh-btn" onclick="loadData()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Refresh</button>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="section-title">Accounts</span><span class="badge blue" id="usersCount">0</span></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Name</th><th>Email</th><th>Provider</th><th>Joined</th></tr></thead>
-              <tbody id="usersBody"><tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👤</div>No users yet</div></td></tr></tbody>
-            </table>
+    <div id="adminPanel" style="display: none">
+      <div class="admin-wrap">
+        <div class="sidebar">
+          <div class="sidebar-logo">
+            <div class="logo-icon">⚡</div>
+            <span class="logo-label">Admin</span>
+          </div>
+          <div class="sidebar-section">Overview</div>
+          <div
+            class="nav-item active"
+            id="nav-overview"
+            onclick="showView('overview')"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            <span>Dashboard</span>
+          </div>
+          <div
+            class="nav-item"
+            id="nav-activity"
+            onclick="showView('activity')"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            <span>Activity</span>
+          </div>
+          <div class="sidebar-section" style="margin-top: 14px">Users</div>
+          <div class="nav-item" id="nav-users" onclick="showView('users')">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+            </svg>
+            <span>Accounts</span>
+          </div>
+          <div
+            class="nav-item"
+            id="nav-waitlist"
+            onclick="showView('waitlist')"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>Waitlist</span>
+          </div>
+          <div class="sidebar-bottom">
+            <button class="logout-btn" onclick="adminLogout()">Sign Out</button>
           </div>
         </div>
-      </div>
 
-      <!-- WAITLIST -->
-      <div class="view" id="view-waitlist">
-        <div class="page-header">
-          <div><div class="page-title">Waitlist</div><div class="page-sub">People waiting for Prompt AI Pro</div></div>
-          <button class="refresh-btn" onclick="loadData()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Refresh</button>
-        </div>
-        <div class="section">
-          <div class="section-header"><span class="section-title">Entries</span><span class="badge yellow" id="waitlistCount">0</span></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Email</th><th>WhatsApp</th><th>Signed Up</th><th>Status</th></tr></thead>
-              <tbody id="waitlistBody"><tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📋</div>Waitlist is empty</div></td></tr></tbody>
-            </table>
+        <div class="main">
+          <!-- DASHBOARD -->
+          <div class="view active" id="view-overview">
+            <div class="page-header">
+              <div>
+                <div class="page-title">Dashboard</div>
+                <div class="page-sub" id="lastUpdated">Loading...</div>
+              </div>
+              <button class="refresh-btn" onclick="loadData()">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path
+                    d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"
+                  />
+                </svg>
+                Refresh
+              </button>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-card blue">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" id="statUsers">—</div>
+                <div class="stat-sub">Registered accounts</div>
+              </div>
+              <div class="stat-card yellow">
+                <div class="stat-label">Waitlist</div>
+                <div class="stat-value" id="statWaitlist">—</div>
+                <div class="stat-sub">Awaiting launch</div>
+              </div>
+              <div class="stat-card green">
+                <div class="stat-label">Total Prompts</div>
+                <div class="stat-value" id="statGen">—</div>
+                <div class="stat-sub">All time</div>
+              </div>
+              <div class="stat-card purple">
+                <div class="stat-label">Today</div>
+                <div class="stat-value" id="statToday">—</div>
+                <div class="stat-sub">Generations today</div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-title">Top Categories</span>
+              </div>
+              <div id="catTable">
+                <div class="empty-state">
+                  <div class="empty-icon">📊</div>
+                  No data yet
+                </div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-title">Recent Sign-ups</span
+                ><span class="badge blue" id="recentCount">0</span>
+              </div>
+              <div id="recentSignups">
+                <div class="empty-state">
+                  <div class="empty-icon">👤</div>
+                  No sign-ups yet
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIVITY -->
+          <div class="view" id="view-activity">
+            <div class="page-header">
+              <div>
+                <div class="page-title">Activity Feed</div>
+                <div class="page-sub">Live log from Supabase</div>
+              </div>
+              <button class="refresh-btn" onclick="loadData()">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path
+                    d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"
+                  /></svg
+                >Refresh
+              </button>
+            </div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-title">Events</span
+                ><span class="badge blue" id="eventsCount">0</span>
+              </div>
+              <div id="activityFeed">
+                <div class="empty-state">
+                  <div class="empty-icon">📡</div>
+                  No events yet
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USERS -->
+          <div class="view" id="view-users">
+            <div class="page-header">
+              <div>
+                <div class="page-title">Registered Users</div>
+                <div class="page-sub">Everyone who has signed up</div>
+              </div>
+              <button class="refresh-btn" onclick="loadData()">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path
+                    d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"
+                  /></svg
+                >Refresh
+              </button>
+            </div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-title">Accounts</span
+                ><span class="badge blue" id="usersCount">0</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Provider</th>
+                      <th>Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersBody">
+                    <tr>
+                      <td colspan="4">
+                        <div class="empty-state">
+                          <div class="empty-icon">👤</div>
+                          No users yet
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- WAITLIST -->
+          <div class="view" id="view-waitlist">
+            <div class="page-header">
+              <div>
+                <div class="page-title">Waitlist</div>
+                <div class="page-sub">People waiting for Prompt AI Pro</div>
+              </div>
+              <button class="refresh-btn" onclick="loadData()">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path
+                    d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"
+                  /></svg
+                >Refresh
+              </button>
+            </div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-title">Entries</span
+                ><span class="badge yellow" id="waitlistCount">0</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>WhatsApp</th>
+                      <th>Signed Up</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="waitlistBody">
+                    <tr>
+                      <td colspan="4">
+                        <div class="empty-state">
+                          <div class="empty-icon">📋</div>
+                          Waitlist is empty
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-<script>
-'use strict';
-const SB_URL  = 'https://sdrmbrrhgovkzzlmdqul.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcm1icnJoZ292a3p6bG1kcXVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTcwNjEsImV4cCI6MjA4OTE5MzA2MX0.YIcN9PQRcKAvCq-3_wpom3Ir-uD8tCZh2efg7Xasyyg';
-
-// ⬇ CHANGE THIS PASSWORD
-const ADMIN_PASSWORD = 'promptai2025';
-
-async function sbSelect(table, params) {
-  const url = `${SB_URL}/rest/v1/${table}?${params || ''}`;
-  const r = await fetch(url, {
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + SB_KEY,
-      'Range': '0-999'
-    }
-  });
-  if (!r.ok) throw new Error('Failed to load ' + table);
-  return r.json();
-}
-
-function adminLogin() {
-  const pass = document.getElementById('adminPass').value;
-  if (pass === ADMIN_PASSWORD) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    loadData();
-  } else {
-    document.getElementById('loginErr').style.display = 'block';
-  }
-}
-
-function adminLogout() {
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('loginPage').style.display = '';
-  document.getElementById('adminPass').value = '';
-  document.getElementById('loginErr').style.display = 'none';
-}
-
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
-}
-
-async function loadData() {
-  document.getElementById('lastUpdated').textContent = 'Refreshing...';
-  try {
-    const [users, events, waitlist] = await Promise.all([
-      sbSelect('users', 'order=created_at.desc'),
-      sbSelect('events', 'order=created_at.desc&limit=200'),
-      sbSelect('waitlist', 'order=created_at.desc')
-    ]);
-
-    document.getElementById('lastUpdated').textContent = 'Live · ' + new Date().toLocaleTimeString();
-
-    const gens = events.filter(e => e.type === 'generation');
-    const todayStr = new Date().toDateString();
-    const todayGens = gens.filter(e => new Date(e.created_at).toDateString() === todayStr);
-
-    // Stats
-    set('statUsers', users.length);
-    set('statWaitlist', waitlist.length);
-    set('statGen', gens.length);
-    set('statToday', todayGens.length);
-
-    // Categories
-    const catCounts = {};
-    gens.forEach(e => { catCounts[e.category] = (catCounts[e.category]||0)+1; });
-    const catEntries = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]);
-    const catEl = document.getElementById('catTable');
-    if (!catEntries.length) {
-      catEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div>No generations yet</div>';
-    } else {
-      const colors = ['blue','purple','green','yellow','blue','purple'];
-      let h = '<table><thead><tr><th>Category</th><th>Count</th><th>Share</th></tr></thead><tbody>';
-      catEntries.forEach((e,i) => {
-        const pct = Math.round(e[1]/gens.length*100);
-        h += `<tr><td>${catEmoji(e[0])} ${cap(e[0])}</td><td><strong>${e[1]}</strong></td><td><span class="badge ${colors[i%colors.length]}">${pct}%</span></td></tr>`;
-      });
-      catEl.innerHTML = h + '</tbody></table>';
-    }
-
-    // Recent signups
-    set('recentCount', users.length);
-    const rsEl = document.getElementById('recentSignups');
-    if (!users.length) {
-      rsEl.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div>No sign-ups yet</div>';
-    } else {
-      let h = '<table><thead><tr><th>Name</th><th>Email</th><th>Provider</th><th>Joined</th></tr></thead><tbody>';
-      users.slice(0,10).forEach(u => {
-        const pc = u.provider==='google'?'blue':'purple';
-        h += `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td><span class="badge ${pc}">${esc(u.provider||'email')}</span></td><td>${fmt(u.created_at)}</td></tr>`;
-      });
-      rsEl.innerHTML = h + '</tbody></table>';
-    }
-
-    // Activity
-    set('eventsCount', events.length);
-    const feedEl = document.getElementById('activityFeed');
-    if (!events.length) {
-      feedEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div>No events yet</div>';
-    } else {
-      let h = '';
-      events.slice(0,100).forEach(ev => {
-        let text = '';
-        let dotClass = ev.type;
-        if (ev.type === 'generation') {
-          text = `<strong>${esc(ev.email||'User')}</strong> generated a <em>${esc(ev.category)}</em> prompt (${esc(ev.tone)})`;
-        } else if (ev.type === 'waitlist') {
-          text = `<strong>${esc(ev.email)}</strong> joined the waitlist`;
-        } else {
-          text = `<strong>${esc(ev.type)}</strong>${ev.email?' — '+esc(ev.email):''}`;
-          dotClass = 'other';
-        }
-        h += `<div class="activity-item"><div class="dot ${dotClass}"></div><div class="activity-text">${text}</div><div class="activity-time">${fmt(ev.created_at)}</div></div>`;
-      });
-      feedEl.innerHTML = h;
-    }
-
-    // Users table
-    set('usersCount', users.length);
-    const ub = document.getElementById('usersBody');
-    if (!users.length) {
-      ub.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👤</div>No users yet</div></td></tr>';
-    } else {
-      let h = '';
-      users.forEach(u => {
-        const pc = u.provider==='google'?'blue':'purple';
-        h += `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td><span class="badge ${pc}">${esc(u.provider||'email')}</span></td><td>${fmt(u.created_at)}</td></tr>`;
-      });
-      ub.innerHTML = h;
-    }
-
-    // Waitlist table
-    set('waitlistCount', waitlist.length);
-    const wb = document.getElementById('waitlistBody');
-    if (!waitlist.length) {
-      wb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📋</div>Waitlist is empty</div></td></tr>';
-    } else {
-      let h = '';
-      waitlist.forEach(w => {
-        h += `<tr><td>${esc(w.email)}</td><td>${esc(w.whatsapp)}</td><td>${fmt(w.created_at)}</td><td><span class="badge yellow">Pending</span></td></tr>`;
-      });
-      wb.innerHTML = h;
-    }
-
-  } catch(err) {
-    document.getElementById('lastUpdated').textContent = 'Error: ' + err.message;
-  }
-}
-
-function set(id, val) { document.getElementById(id).textContent = val; }
-function fmt(ts) {
-  if (!ts) return '—';
-  const d = new Date(ts);
-  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + ' ' +
-         d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-}
-function esc(s) {
-  if (!s) return '—';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function cap(s) { return s ? s[0].toUpperCase()+s.slice(1) : ''; }
-function catEmoji(c) {
-  return {general:'✦',writing:'✍️',coding:'💻',business:'💼',image:'🎨',marketing:'📣',education:'📚',research:'🔬'}[c]||'•';
-}
-
-// Auto-refresh every 30s
-setInterval(() => {
-  if (document.getElementById('adminPanel').style.display !== 'none') loadData();
-}, 30000);
-</script>
-</body>
+    <script src="admin-script.js"></script>
+  </body>
 </html>
