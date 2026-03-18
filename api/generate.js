@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   let userContent;
   if (imageBase64 && imageType && mode !== 'questions') {
     // Use vision-capable model for image requests
-    model = 'llama-3.2-11b-vision-preview';
+    model = 'meta-llama/llama-4-scout-17b-16e-instruct';
     userContent = [
       {
         type: 'image_url',
@@ -83,3 +83,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
+
